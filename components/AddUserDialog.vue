@@ -18,17 +18,8 @@
         />
       </q-card-actions>
       <q-form class="q-ma-lg q-gutter-md">
-       <q-input
-       autofocus
-          v-model="name"
-          ref="nameRef"
-          label="Name">
-        </q-input>
-       <q-input
-          v-model="email"
-          ref="emailRef"
-          label="Email">
-        </q-input>
+        <q-input autofocus v-model="name" ref="nameRef" label="Name"> </q-input>
+        <q-input v-model="email" ref="emailRef" label="Email"> </q-input>
         <q-input
           v-model="password"
           ref="passwordRef"
@@ -51,7 +42,7 @@
 
 <script>
 import { useDialogPluginComponent } from "quasar";
-import { useStore } from "vuex";
+import { useUsersStore } from "../users.store";
 import { ref } from "vue";
 
 export default {
@@ -76,7 +67,7 @@ export default {
     //                    example: onDialogOK({ /*.../* }) - with payload
     // onDialogCancel - Function to call to settle dialog with "cancel" outcome
 
-    const $store = useStore();
+    const $store = useUsersStore();
 
     const name = ref();
     const nameRef = ref("");
@@ -112,25 +103,24 @@ export default {
       },
 
       saveUser() {
-
         let user = {
           name: name.value,
           email: email.value,
           // companyName: companyName.value,
           password: password.value,
         };
-                              console.log(user)
+        console.log(user);
 
-        $store.dispatch("users/store", user).then(
+        $store.store(user).then(
           () => {
-            name.value = '';
-            nameRef.value = '';
+            name.value = "";
+            nameRef.value = "";
 
-            email.value = '';
-            emailRef.value = '';
+            email.value = "";
+            emailRef.value = "";
 
-            password.value = '';
-            passwordRef.value = '';
+            password.value = "";
+            passwordRef.value = "";
             onDialogOK();
 
             //$router.push("/app");

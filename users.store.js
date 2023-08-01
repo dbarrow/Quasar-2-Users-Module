@@ -1,74 +1,49 @@
-import UserService from "./users.service";
-export const users = {
-  namespaced: true,
+import UsersService from "./users.service";
+import { defineStore } from "pinia";
 
-  state: {
+export const useUsersStore = defineStore("users", {
+  state: () => ({
     users: [],
-  },
+  }),
 
   actions: {
-    index({ commit }) {
-      UserService.index().then((response) => {
-          console.log(response.users)
-        commit("storeUsers", response.users);
+    async index() {
+      return await UsersService.index().then((response) => {
+        this.users = response.users;
       });
     },
 
-    store( {commit} , user) {
-      console.log("Store", user)
-      UserService.store(user).then((response) => {
-        console.log(response.users)
-        commit('addUser', user);
-      })
+    async store(user) {
+      return await UsersService.store(user).then((response) => {
+        this.users.push(response.user);
+        return response;
+      });
     },
 
-    update( {commit}, user)
-    {
-      UserService.update(user).then((response) => {
-        console.log(response.users)
-        commit('updateUser', user);
-      })
-    }
-  },
-
-  mutations: {
-    storeUsers(state, users) {
-      state.users = users;
-      console.log("USER_STATE: ",state.users[0].email);
-      // state.user = user;
+    async update(user) {
+      return await UsersService.update(user).then((response) => {
+        var index = this.users.findIndex((item) => item.id === user.id);
+        this.users.splice(index, 1, response.user);
+        return response;
+      });
     },
 
-    addUser(state, user) {
-      state.users.push(user)
+    async delete(user) {
+      UsersService.delete(user).then((response) => {
+        var index = this.users.findIndex((item) => item.id === user.id);
+        this.users.splice(index, 1);
+        return response;
+      });
     },
-
-    updateUser(state, user) {
-     // state.users.push(user)//trying to update the user and not add another to the stoere
-     var index =  getUserIndex (state, user);
-     state.users[index] = user;
-     console.log("user index = " + index);
-
-    }
   },
 
   getters: {
-    getUser: (state) => (id) => {
-        if(state.users) {
-            return state.users.find(user => user.id == id)
-        }
+    getUserById: (state, id) => {
+      return state.users.find((user) => user.id === id);
     },
-
-    getUsers: (state) => {
-      return state.users;
-    }
-
   },
+});
 
-
-};
-
-function getUserIndex(state, user)
-{
-       return state.users.findIndex(c => c.id === user.id)       
-
+function getUserIndex(user) {
+  return this.users.findIndex((c) => c.id === user.id);
 }

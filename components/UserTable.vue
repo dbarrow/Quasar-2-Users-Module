@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-table
-    class="table"    
+      class="table"
       card-class="table"
       binary-state-sort
       :rows="users"
@@ -13,20 +13,25 @@
       :virtual-scroll-sticky-size-start="48"
       flat
     >
-
-    <template v-slot:body-cell-edit="props">
-      <q-td :props="props">
+      <template v-slot:body-cell-edit="props">
+        <q-td :props="props">
           <q-btn
-          icon-right="edit"
-          no-caps
-          flat
-          dense
-          @click="test(props.row)"
-        />
+            icon-right="edit"
+            no-caps
+            flat
+            dense
+            @click="EditUser(props.row)"
+          />
+          <q-btn
+            icon-right="delete"
+            no-caps
+            flat
+            dense
+            @click="DeleteUser(props.row)"
+          />
         </q-td>
-  </template>
-      <template v-slot:top-left>
       </template>
+      <template v-slot:top-left> </template>
 
       <template v-slot:top-right>
         <q-input dense debounce="100" v-model="filter" placeholder="Search">
@@ -41,13 +46,12 @@
 
 <script>
 import { ref, onMounted } from "vue";
-import { useStore } from "vuex";
+import { useUsersStore } from "../users.store";
 import UserTable from "../components/UserTable.vue";
 import UserCard from "../components/UserCard.vue";
 import { useQuasar } from "quasar";
 import AddUserDialogVue from "../components/AddUserDialog.vue";
-
-
+import { Platform } from "quasar";
 
 const columns = [
   {
@@ -74,33 +78,32 @@ const columns = [
   },
 ];
 
-
 export default {
   props: {
-    users: Array
-    },
+    users: Array,
+  },
   setup() {
-
     const $q = useQuasar();
 
     const testing = ref(false);
-    const store = useStore();
+    const store = useUsersStore();
     const userID = ref(1);
+    const isMobile = $q.platform.is.mobile;
 
-
-      function test(user)
-    {
-     // console.log(user)
- $q.dialog({
+    function EditUser(user) {
+      // console.log(user)
+      $q.dialog({
         component: UserCard,
         componentProps: {
-
-          title: "Add Usersdfg",
+          title: "Edit User",
           user: user,
+          content: "Content",
+          maximized: isMobile,
+          editMode: user !== null,
         },
       })
         .onOk(() => {
-          console.log("OK");
+          console.log("OKh");
         })
         .onCancel(() => {
           // console.log('Cancel')
@@ -109,15 +112,38 @@ export default {
           // console.log('I am triggered on both OK and Cancel')
         });
     }
+
+    function DeleteUser(user) {
+      // console.log(user)
+      $q.dialog({
+        component: UserCard,
+        componentProps: {
+          title: "Delete User",
+          content: "Content",
+
+          user: user,
+        },
+      })
+        .onOk(() => {
+          store.delete(user).then(() => {
+            console.log("delete dispatched");
+          });
+        })
+
+        .onCancel(() => {
+          // console.log('Cancel')
+        })
+        .onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        });
+    }
     return {
-      test,
-       filter: ref(""),
-      columns,  
-           
+      EditUser,
+      DeleteUser,
+      filter: ref(""),
+      columns,
     };
-
   },
-
 };
 </script>
 
@@ -136,29 +162,30 @@ export default {
 }
 
 .table {
-  height:
-   calc(100vh - 250px)
+  height: calc(100vh - 250px);
 }
 
-
 .my-sticky-dynamic
-  /* height or max-height is important */
-  {
-    height: 410px
-  }
+  /* height or max-height is important */ {
+  height: 410px;
+}
 
-  .q-table__top,
+.q-table__top,
   .q-table__bottom,
-  thead tr:first-child th /* bg color is important for th; just specify one */
-    {background-color: #fff}
+  thead tr:first-child th /* bg color is important for th; just specify one */ {
+  background-color: #fff;
+}
 
-  thead tr th {
-    position: sticky;
-    z-index: 1}
-  /* this will be the loading indicator */
-  thead tr:last-child th {
-    /* height of all previous header rows */
-    top: 48px }
-  thead tr:first-child th {
-    top: 0}
+thead tr th {
+  position: sticky;
+  z-index: 1;
+}
+/* this will be the loading indicator */
+thead tr:last-child th {
+  /* height of all previous header rows */
+  top: 48px;
+}
+thead tr:first-child th {
+  top: 0;
+}
 </style>
