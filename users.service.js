@@ -1,6 +1,6 @@
 import axios from "axios";
-import authHeader from "../auth/auth.header";
-import authConfig from "../auth/auth.config";
+import authHeader from "../Quasar-2-Auth-Module/auth.header";
+import authConfig from "../Quasar-2-Auth-Module/auth.config";
 
 const API_URL = authConfig.USER_API_URL;
 
